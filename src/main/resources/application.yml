@@ -1,0 +1,32 @@
+server:
+  port: 8085
+
+app:
+  warehouses_management:
+    client:
+      base-url: http://localhost:8087
+    api:
+      # Brand endpoints
+      BrandController_getAllActiveBrands: /api/1.1/brands
+      BrandController_getBrandById: /api/1.1/brands/{id}
+      BrandController_getBrandByCode: /api/1.1/brands/code/{code}
+      BrandController_searchBrands: /api/1.1/brands/search
+      BrandController_createBrand: /api/1.1/brands
+      BrandController_updateBrand: /api/1.1/brands/{id}
+      BrandController_deleteBrand: /api/1.1/brands/{id}
+      # Category endpoints
+      CategoryController_getAllActiveCategories: /api/1.1/categories
+      CategoryController_getCategoryById: /api/1.1/categories/{id}
+      CategoryController_getCategoryByCode: /api/1.1/categories/code/{code}
+      CategoryController_searchCategories: /api/1.1/categories/search
+      CategoryController_createCategory: /api/1.1/categories
+      CategoryController_updateCategory: /api/1.1/categories/{id}
+      CategoryController_deleteCategory: /api/1.1/categories/{id}
+
+  warehouses_order_service:
+    client:
+      base-url: http://localhost:8086
+    api:
+
+
+
