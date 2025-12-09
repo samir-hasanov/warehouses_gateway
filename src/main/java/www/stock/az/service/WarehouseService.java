@@ -1,0 +1,21 @@
+package www.stock.az.service;
+
+import www.stock.az.dto.request.warehousesmanagement.WarehouseCreateRequest;
+import www.stock.az.dto.request.warehousesmanagement.WarehouseUpdateRequest;
+import www.stock.az.dto.response.warehousesmanagement.WarehouseResponse;
+
+import java.util.List;
+
+public interface WarehouseService {
+    List<WarehouseResponse> findAllActive();
+
+    WarehouseResponse findById(Long id);
+
+    WarehouseResponse findByCode(String code);
+
+    WarehouseResponse create(WarehouseCreateRequest request);
+
+    WarehouseResponse update(Long id, WarehouseUpdateRequest request);
+
+    void delete(Long id);
+}
