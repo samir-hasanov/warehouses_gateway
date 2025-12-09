@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "app.warehouses_management.client")
+@ConfigurationProperties(prefix = "app.warehouses-management.client")
 public class WarehousesManagementClient {
     private String baseUrl;
 

@@ -30,159 +30,313 @@ public class WebClientWarehousesManagement {
 
     // Brand methods
     public List<BrandResponse> findAllActiveBrands() {
-        return webClient.get()
-                .uri(warehousesManagementApi.getBrandController_getAllActiveBrands())
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<BrandResponse>>() {
-                })
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            return webClient.get()
+                    .uri(warehousesManagementApi.getBrandController_getAllActiveBrands())
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error calling warehouses management service: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<BrandResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching active brands from warehouses management service", e);
+            throw new RuntimeException("Failed to fetch brands: " + e.getMessage(), e);
+        }
     }
 
     public BrandResponse findBrandById(Long id) {
-        String uri = warehousesManagementApi.getBrandController_getBrandById()
-                .replace("{id}", String.valueOf(id));
-        return webClient.get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(BrandResponse.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getBrandController_getBrandById()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching brand by ID {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(BrandResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching brand by ID: {}", id, e);
+            throw new RuntimeException("Failed to fetch brand: " + e.getMessage(), e);
+        }
     }
 
     public BrandResponse findBrandByCode(String code) {
-        String uri = warehousesManagementApi.getBrandController_getBrandByCode()
-                .replace("{code}", code);
-        return webClient.get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(BrandResponse.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getBrandController_getBrandByCode()
+                    .replace("{code}", code);
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching brand by code {}: Status code {}", 
+                                        code, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(BrandResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching brand by code: {}", code, e);
+            throw new RuntimeException("Failed to fetch brand: " + e.getMessage(), e);
+        }
     }
 
     public List<BrandResponse> searchBrands(String query) {
-        String uri = warehousesManagementApi.getBrandController_searchBrands() + "?q=" + query;
-        return webClient.get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<BrandResponse>>() {
-                })
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getBrandController_searchBrands() + "?q=" + query;
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error searching brands with query {}: Status code {}", 
+                                        query, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<BrandResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error searching brands with query: {}", query, e);
+            throw new RuntimeException("Failed to search brands: " + e.getMessage(), e);
+        }
     }
 
     public BrandResponse createBrand(BrandCreateRequest request) {
-        return webClient.post()
-                .uri(warehousesManagementApi.getBrandController_createBrand())
-                .header("Content-Type", "application/json")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(BrandResponse.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            return webClient.post()
+                    .uri(warehousesManagementApi.getBrandController_createBrand())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error creating brand: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(BrandResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error creating brand", e);
+            throw new RuntimeException("Failed to create brand: " + e.getMessage(), e);
+        }
     }
 
     public BrandResponse updateBrand(Long id, BrandUpdateRequest request) {
-        String uri = warehousesManagementApi.getBrandController_updateBrand()
-                .replace("{id}", String.valueOf(id));
-        return webClient.put()
-                .uri(uri)
-                .header("Content-Type", "application/json")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(BrandResponse.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getBrandController_updateBrand()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.put()
+                    .uri(uri)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error updating brand {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(BrandResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error updating brand: {}", id, e);
+            throw new RuntimeException("Failed to update brand: " + e.getMessage(), e);
+        }
     }
 
     public void deleteBrand(Long id) {
-        String uri = warehousesManagementApi.getBrandController_deleteBrand()
-                .replace("{id}", String.valueOf(id));
-        webClient.delete()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getBrandController_deleteBrand()
+                    .replace("{id}", String.valueOf(id));
+            webClient.delete()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error deleting brand {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(Void.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error deleting brand: {}", id, e);
+            throw new RuntimeException("Failed to delete brand: " + e.getMessage(), e);
+        }
     }
 
     // Category methods
     public List<CategoryResponse> findAllActiveCategories() {
-        return webClient.get()
-                .uri(warehousesManagementApi.getCategoryController_getAllActiveCategories())
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<CategoryResponse>>() {
-                })
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            return webClient.get()
+                    .uri(warehousesManagementApi.getCategoryController_getAllActiveCategories())
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error calling warehouses management service: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<CategoryResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching active categories from warehouses management service", e);
+            throw new RuntimeException("Failed to fetch categories: " + e.getMessage(), e);
+        }
     }
 
     public CategoryResponse findCategoryById(Long id) {
-        String uri = warehousesManagementApi.getCategoryController_getCategoryById()
-                .replace("{id}", String.valueOf(id));
-        return webClient.get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(CategoryResponse.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getCategoryController_getCategoryById()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching category by ID {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(CategoryResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching category by ID: {}", id, e);
+            throw new RuntimeException("Failed to fetch category: " + e.getMessage(), e);
+        }
     }
 
     public CategoryResponse findCategoryByCode(String code) {
-        String uri = warehousesManagementApi.getCategoryController_getCategoryByCode()
-                .replace("{code}", code);
-        return webClient.get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(CategoryResponse.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getCategoryController_getCategoryByCode()
+                    .replace("{code}", code);
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching category by code {}: Status code {}", 
+                                        code, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(CategoryResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching category by code: {}", code, e);
+            throw new RuntimeException("Failed to fetch category: " + e.getMessage(), e);
+        }
     }
 
     public List<CategoryResponse> searchCategories(String query) {
-        String uri = warehousesManagementApi.getCategoryController_searchCategories() + "?q=" + query;
-        return webClient.get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<CategoryResponse>>() {
-                })
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getCategoryController_searchCategories() + "?q=" + query;
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error searching categories with query {}: Status code {}", 
+                                        query, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<CategoryResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error searching categories with query: {}", query, e);
+            throw new RuntimeException("Failed to search categories: " + e.getMessage(), e);
+        }
     }
 
     public CategoryResponse createCategory(CategoryCreateRequest request) {
-        return webClient.post()
-                .uri(warehousesManagementApi.getCategoryController_createCategory())
-                .header("Content-Type", "application/json")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(CategoryResponse.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            return webClient.post()
+                    .uri(warehousesManagementApi.getCategoryController_createCategory())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error creating category: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(CategoryResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error creating category", e);
+            throw new RuntimeException("Failed to create category: " + e.getMessage(), e);
+        }
     }
 
     public CategoryResponse updateCategory(Long id, CategoryUpdateRequest request) {
-        String uri = warehousesManagementApi.getCategoryController_updateCategory()
-                .replace("{id}", String.valueOf(id));
-        return webClient.put()
-                .uri(uri)
-                .header("Content-Type", "application/json")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(CategoryResponse.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getCategoryController_updateCategory()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.put()
+                    .uri(uri)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error updating category {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(CategoryResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error updating category: {}", id, e);
+            throw new RuntimeException("Failed to update category: " + e.getMessage(), e);
+        }
     }
 
     public void deleteCategory(Long id) {
-        String uri = warehousesManagementApi.getCategoryController_deleteCategory()
-                .replace("{id}", String.valueOf(id));
-        webClient.delete()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .timeout(Duration.ofSeconds(10))
-                .block();
+        try {
+            String uri = warehousesManagementApi.getCategoryController_deleteCategory()
+                    .replace("{id}", String.valueOf(id));
+            webClient.delete()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error deleting category {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(Void.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error deleting category: {}", id, e);
+            throw new RuntimeException("Failed to delete category: " + e.getMessage(), e);
+        }
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "app.warehouses_order_service.client")
+@ConfigurationProperties(prefix = "app.warehouses-order-service.client")
 public class WarehousesOrderClient {
 
     private String baseUrl;

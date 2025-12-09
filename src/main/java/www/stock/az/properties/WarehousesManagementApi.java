@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "app.warehouses_management.api")
+@ConfigurationProperties(prefix = "app.warehouses-management.api")
 public class WarehousesManagementApi {
     // Brand endpoints
     private String BrandController_getAllActiveBrands;

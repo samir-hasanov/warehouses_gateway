@@ -1,8 +1,18 @@
 server:
   port: 8085
 
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
+
 app:
-  warehouses_management:
+  warehouses-management:
     client:
       base-url: http://localhost:8087
     api:
@@ -23,10 +33,44 @@ app:
       CategoryController_updateCategory: /api/1.1/categories/{id}
       CategoryController_deleteCategory: /api/1.1/categories/{id}
 
-  warehouses_order_service:
+  warehouses-order-service:
     client:
       base-url: http://localhost:8086
     api:
+      # Order endpoints
+      OrderController_getAllOrders: /api/1.1/orders
+      OrderController_getOrderById: /api/1.1/orders/{id}
+      OrderController_getOrderByNumber: /api/1.1/orders/number/{orderNumber}
+      OrderController_getOrdersByStatus: /api/1.1/orders/status/{status}
+      OrderController_getOrdersByPaymentStatus: /api/1.1/orders/payment-status/{paymentStatus}
+      OrderController_getOrdersByCustomer: /api/1.1/orders/customer/{email}
+      OrderController_searchOrders: /api/1.1/orders/search
+      OrderController_createOrder: /api/1.1/orders
+      OrderController_updateOrder: /api/1.1/orders/{id}
+      OrderController_updateOrderStatus: /api/1.1/orders/{id}/status
+      OrderController_updatePaymentStatus: /api/1.1/orders/{id}/payment-status
+      OrderController_cancelOrder: /api/1.1/orders/{id}/cancel
+      OrderController_completeOrder: /api/1.1/orders/{id}/complete
+      # Discount endpoints
+      DiscountController_getAllDiscounts: /api/1.1/discounts
+      DiscountController_getDiscountById: /api/1.1/discounts/{id}
+      DiscountController_getDiscountByCode: /api/1.1/discounts/code/{code}
+      DiscountController_getActiveDiscounts: /api/1.1/discounts/active
+      DiscountController_searchDiscounts: /api/1.1/discounts/search
+      DiscountController_createDiscount: /api/1.1/discounts
+      DiscountController_updateDiscount: /api/1.1/discounts/{id}
+      DiscountController_deleteDiscount: /api/1.1/discounts/{id}
+      DiscountController_validateDiscount: /api/1.1/discounts/validate
+      # Price endpoints
+      PriceController_getAllPrices: /api/1.1/prices
+      PriceController_getPriceById: /api/1.1/prices/{id}
+      PriceController_getPricesByProduct: /api/1.1/prices/product/{productId}
+      PriceController_getPricesByWarehouse: /api/1.1/prices/warehouse/{warehouseId}
+      PriceController_getCurrentPrice: /api/1.1/prices/product/{productId}/current
+      PriceController_getPriceHistory: /api/1.1/prices/product/{productId}/history
+      PriceController_createPrice: /api/1.1/prices
+      PriceController_updatePrice: /api/1.1/prices/{id}
+      PriceController_deletePrice: /api/1.1/prices/{id}
 
 
 

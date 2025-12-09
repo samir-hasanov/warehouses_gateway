@@ -1,5 +1,10 @@
 package www.stock.az.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,18 +21,31 @@ import java.util.List;
 @RequestMapping("/api/1.1/brands")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@Tag(name = "Brands", description = "Brand management API endpoints")
 public class BrandController {
 
     private final BrandService brandService;
 
     @GetMapping
+    @Operation(summary = "Get all active brands", description = "Returns a list of all active brands")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of brands")
     public ResponseEntity<List<BrandResponse>> getAllActiveBrands() {
-        List<BrandResponse> brands = brandService.findAllActive();
-        return ResponseEntity.ok(brands);
+        try {
+            List<BrandResponse> brands = brandService.findAllActive();
+            return ResponseEntity.ok(brands);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BrandResponse> getBrandById(@PathVariable Long id) {
+    @Operation(summary = "Get brand by ID", description = "Returns a brand by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Brand found"),
+            @ApiResponse(responseCode = "404", description = "Brand not found")
+    })
+    public ResponseEntity<BrandResponse> getBrandById(
+            @Parameter(description = "Brand ID", required = true) @PathVariable Long id) {
         try {
             BrandResponse brand = brandService.findById(id);
             return ResponseEntity.ok(brand);
@@ -37,7 +55,13 @@ public class BrandController {
     }
 
     @GetMapping("/code/{code}")
-    public ResponseEntity<BrandResponse> getBrandByCode(@PathVariable String code) {
+    @Operation(summary = "Get brand by code", description = "Returns a brand by its unique code")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Brand found"),
+            @ApiResponse(responseCode = "404", description = "Brand not found")
+    })
+    public ResponseEntity<BrandResponse> getBrandByCode(
+            @Parameter(description = "Brand code", required = true) @PathVariable String code) {
         try {
             BrandResponse brand = brandService.findByCode(code);
             return ResponseEntity.ok(brand);
@@ -47,7 +71,10 @@ public class BrandController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<BrandResponse>> searchBrands(@RequestParam String q) {
+    @Operation(summary = "Search brands", description = "Search brands by query string")
+    @ApiResponse(responseCode = "200", description = "Search results")
+    public ResponseEntity<List<BrandResponse>> searchBrands(
+            @Parameter(description = "Search query", required = true) @RequestParam String q) {
         try {
             List<BrandResponse> brands = brandService.search(q);
             return ResponseEntity.ok(brands);
@@ -57,6 +84,11 @@ public class BrandController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a new brand", description = "Creates a new brand with the provided information")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Brand created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input")
+    })
     public ResponseEntity<BrandResponse> createBrand(@Valid @RequestBody BrandCreateRequest request) {
         try {
             BrandResponse response = brandService.create(request);
@@ -67,8 +99,14 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update brand", description = "Updates an existing brand by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Brand updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Brand not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input")
+    })
     public ResponseEntity<BrandResponse> updateBrand(
-            @PathVariable Long id,
+            @Parameter(description = "Brand ID", required = true) @PathVariable Long id,
             @Valid @RequestBody BrandUpdateRequest request) {
         try {
             BrandResponse response = brandService.update(id, request);
@@ -79,7 +117,13 @@ public class BrandController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBrand(@PathVariable Long id) {
+    @Operation(summary = "Delete brand", description = "Soft deletes a brand by ID (sets isActive to false)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Brand deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Brand not found")
+    })
+    public ResponseEntity<Void> deleteBrand(
+            @Parameter(description = "Brand ID", required = true) @PathVariable Long id) {
         try {
             brandService.delete(id);
             return ResponseEntity.noContent().build();
