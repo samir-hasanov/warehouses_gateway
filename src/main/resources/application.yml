@@ -32,6 +32,24 @@ app:
       CategoryController_createCategory: /api/1.1/categories
       CategoryController_updateCategory: /api/1.1/categories/{id}
       CategoryController_deleteCategory: /api/1.1/categories/{id}
+      # Warehouse endpoints
+      WarehouseController_getAllActiveWarehouses: /api/1.1/warehouses
+      WarehouseController_getWarehouseById: /api/1.1/warehouses/{id}
+      WarehouseController_getWarehouseByCode: /api/1.1/warehouses/code/{code}
+      WarehouseController_createWarehouse: /api/1.1/warehouses
+      WarehouseController_updateWarehouse: /api/1.1/warehouses/{id}
+      WarehouseController_deleteWarehouse: /api/1.1/warehouses/{id}
+      # Product endpoints
+      ProductController_getAllActiveProducts: /api/1.1/products
+      ProductController_getProductById: /api/1.1/products/{id}
+      ProductController_getProductByCode: /api/1.1/products/code/{code}
+      ProductController_getProductByBarcode: /api/1.1/products/barcode/{barcode}
+      ProductController_searchProducts: /api/1.1/products/search
+      ProductController_createProduct: /api/1.1/products
+      ProductController_updateProduct: /api/1.1/products/{id}
+      ProductController_deleteProduct: /api/1.1/products/{id}
+      # Stock Movement endpoints
+      StockMovementController_addStockByBarcode: /api/1.1/stock-movements/stock-in-by-barcode
 
   warehouses-order-service:
     client:

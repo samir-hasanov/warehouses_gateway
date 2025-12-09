@@ -8,8 +8,16 @@ import www.stock.az.dto.request.warehousesmanagement.BrandCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.BrandUpdateRequest;
 import www.stock.az.dto.request.warehousesmanagement.CategoryCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.CategoryUpdateRequest;
+import www.stock.az.dto.request.warehousesmanagement.ProductCreateRequest;
+import www.stock.az.dto.request.warehousesmanagement.ProductUpdateRequest;
+import www.stock.az.dto.request.warehousesmanagement.StockInRequest;
+import www.stock.az.dto.request.warehousesmanagement.WarehouseCreateRequest;
+import www.stock.az.dto.request.warehousesmanagement.WarehouseUpdateRequest;
 import www.stock.az.dto.response.warehousesmanagement.BrandResponse;
 import www.stock.az.dto.response.warehousesmanagement.CategoryResponse;
+import www.stock.az.dto.response.warehousesmanagement.ProductResponse;
+import www.stock.az.dto.response.warehousesmanagement.StockMovementResponse;
+import www.stock.az.dto.response.warehousesmanagement.WarehouseResponse;
 import www.stock.az.properties.WarehousesManagementApi;
 import www.stock.az.properties.WarehousesManagementClient;
 
@@ -337,6 +345,341 @@ public class WebClientWarehousesManagement {
         } catch (Exception e) {
             log.error("Error deleting category: {}", id, e);
             throw new RuntimeException("Failed to delete category: " + e.getMessage(), e);
+        }
+    }
+
+    // Warehouse methods
+    public List<WarehouseResponse> findAllActiveWarehouses() {
+        try {
+            return webClient.get()
+                    .uri(warehousesManagementApi.getWarehouseController_getAllActiveWarehouses())
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error calling warehouses management service: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<WarehouseResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching active warehouses from warehouses management service", e);
+            throw new RuntimeException("Failed to fetch warehouses: " + e.getMessage(), e);
+        }
+    }
+
+    public WarehouseResponse findWarehouseById(Long id) {
+        try {
+            String uri = warehousesManagementApi.getWarehouseController_getWarehouseById()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching warehouse by ID {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(WarehouseResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching warehouse by ID: {}", id, e);
+            throw new RuntimeException("Failed to fetch warehouse: " + e.getMessage(), e);
+        }
+    }
+
+    public WarehouseResponse findWarehouseByCode(String code) {
+        try {
+            String uri = warehousesManagementApi.getWarehouseController_getWarehouseByCode()
+                    .replace("{code}", code);
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching warehouse by code {}: Status code {}", 
+                                        code, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(WarehouseResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching warehouse by code: {}", code, e);
+            throw new RuntimeException("Failed to fetch warehouse: " + e.getMessage(), e);
+        }
+    }
+
+    public WarehouseResponse createWarehouse(WarehouseCreateRequest request) {
+        try {
+            return webClient.post()
+                    .uri(warehousesManagementApi.getWarehouseController_createWarehouse())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error creating warehouse: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(WarehouseResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error creating warehouse", e);
+            throw new RuntimeException("Failed to create warehouse: " + e.getMessage(), e);
+        }
+    }
+
+    public WarehouseResponse updateWarehouse(Long id, WarehouseUpdateRequest request) {
+        try {
+            String uri = warehousesManagementApi.getWarehouseController_updateWarehouse()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.put()
+                    .uri(uri)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error updating warehouse {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(WarehouseResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error updating warehouse: {}", id, e);
+            throw new RuntimeException("Failed to update warehouse: " + e.getMessage(), e);
+        }
+    }
+
+    public void deleteWarehouse(Long id) {
+        try {
+            String uri = warehousesManagementApi.getWarehouseController_deleteWarehouse()
+                    .replace("{id}", String.valueOf(id));
+            webClient.delete()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error deleting warehouse {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(Void.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error deleting warehouse: {}", id, e);
+            throw new RuntimeException("Failed to delete warehouse: " + e.getMessage(), e);
+        }
+    }
+
+    // Product methods
+    public List<ProductResponse> findAllActiveProducts() {
+        try {
+            return webClient.get()
+                    .uri(warehousesManagementApi.getProductController_getAllActiveProducts())
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error calling warehouses management service: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<ProductResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching active products from warehouses management service", e);
+            throw new RuntimeException("Failed to fetch products: " + e.getMessage(), e);
+        }
+    }
+
+    public ProductResponse findProductById(Long id) {
+        try {
+            String uri = warehousesManagementApi.getProductController_getProductById()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching product by ID {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(ProductResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching product by ID: {}", id, e);
+            throw new RuntimeException("Failed to fetch product: " + e.getMessage(), e);
+        }
+    }
+
+    public ProductResponse findProductByCode(String code) {
+        try {
+            String uri = warehousesManagementApi.getProductController_getProductByCode()
+                    .replace("{code}", code);
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching product by code {}: Status code {}", 
+                                        code, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(ProductResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching product by code: {}", code, e);
+            throw new RuntimeException("Failed to fetch product: " + e.getMessage(), e);
+        }
+    }
+
+    public ProductResponse findProductByBarcode(String barcode) {
+        try {
+            String uri = warehousesManagementApi.getProductController_getProductByBarcode()
+                    .replace("{barcode}", barcode);
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching product by barcode {}: Status code {}", 
+                                        barcode, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(ProductResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching product by barcode: {}", barcode, e);
+            throw new RuntimeException("Failed to fetch product: " + e.getMessage(), e);
+        }
+    }
+
+    public List<ProductResponse> searchProducts(String query) {
+        try {
+            String uri = warehousesManagementApi.getProductController_searchProducts() + "?q=" + query;
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error searching products with query {}: Status code {}", 
+                                        query, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<ProductResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error searching products with query: {}", query, e);
+            throw new RuntimeException("Failed to search products: " + e.getMessage(), e);
+        }
+    }
+
+    public ProductResponse createProduct(ProductCreateRequest request) {
+        try {
+            return webClient.post()
+                    .uri(warehousesManagementApi.getProductController_createProduct())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error creating product: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(ProductResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error creating product", e);
+            throw new RuntimeException("Failed to create product: " + e.getMessage(), e);
+        }
+    }
+
+    public ProductResponse updateProduct(Long id, ProductUpdateRequest request) {
+        try {
+            String uri = warehousesManagementApi.getProductController_updateProduct()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.put()
+                    .uri(uri)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error updating product {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(ProductResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error updating product: {}", id, e);
+            throw new RuntimeException("Failed to update product: " + e.getMessage(), e);
+        }
+    }
+
+    public void deleteProduct(Long id) {
+        try {
+            String uri = warehousesManagementApi.getProductController_deleteProduct()
+                    .replace("{id}", String.valueOf(id));
+            webClient.delete()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error deleting product {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(Void.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error deleting product: {}", id, e);
+            throw new RuntimeException("Failed to delete product: " + e.getMessage(), e);
+        }
+    }
+
+    // Stock Movement methods
+    public StockMovementResponse addStockByBarcode(StockInRequest request) {
+        try {
+            return webClient.post()
+                    .uri(warehousesManagementApi.getStockMovementController_addStockByBarcode())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error adding stock by barcode: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(StockMovementResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error adding stock by barcode", e);
+            throw new RuntimeException("Failed to add stock by barcode: " + e.getMessage(), e);
         }
     }
 }
