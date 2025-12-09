@@ -1,5 +1,8 @@
 package www.stock.az.exception;
 
+import lombok.Data;
+
+@Data
 public class MyException extends RuntimeException {
 
     private Integer code;
