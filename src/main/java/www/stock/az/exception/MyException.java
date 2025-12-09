@@ -1,8 +1,13 @@
 package www.stock.az.exception;
 
-public class MyException {
+public class MyException extends RuntimeException {
 
-    //dev
-    //branch3
+    private Integer code;
+
+    public MyException(Integer code, String message) {
+        super(message);
+        this.code = code;
+    }
+
 
 }
