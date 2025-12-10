@@ -48,4 +48,11 @@ public class WarehousesManagementApi {
     
     // Stock Movement endpoints
     private String StockMovementController_addStockByBarcode;
+    
+    // Stock endpoints
+    private String StockController_getAllStocks;
+    private String StockController_getStockById;
+    private String StockController_getStocksByWarehouse;
+    private String StockController_getStocksByProduct;
+    private String StockController_getLowStockItems;
 }

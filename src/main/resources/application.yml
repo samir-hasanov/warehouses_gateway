@@ -50,6 +50,12 @@ app:
       ProductController_deleteProduct: /api/1.1/products/{id}
       # Stock Movement endpoints
       StockMovementController_addStockByBarcode: /api/1.1/stock-movements/stock-in-by-barcode
+      # Stock endpoints
+      StockController_getAllStocks: /api/1.1/stocks
+      StockController_getStockById: /api/1.1/stocks/{id}
+      StockController_getStocksByWarehouse: /api/1.1/stocks/warehouse/{warehouseId}
+      StockController_getStocksByProduct: /api/1.1/stocks/product/{productId}
+      StockController_getLowStockItems: /api/1.1/stocks/low-stock
 
   warehouses-order-service:
     client:

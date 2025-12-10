@@ -17,6 +17,7 @@ import www.stock.az.dto.response.warehousesmanagement.BrandResponse;
 import www.stock.az.dto.response.warehousesmanagement.CategoryResponse;
 import www.stock.az.dto.response.warehousesmanagement.ProductResponse;
 import www.stock.az.dto.response.warehousesmanagement.StockMovementResponse;
+import www.stock.az.dto.response.warehousesmanagement.StockResponse;
 import www.stock.az.dto.response.warehousesmanagement.WarehouseResponse;
 import www.stock.az.properties.WarehousesManagementApi;
 import www.stock.az.properties.WarehousesManagementClient;
@@ -680,6 +681,121 @@ public class WebClientWarehousesManagement {
         } catch (Exception e) {
             log.error("Error adding stock by barcode", e);
             throw new RuntimeException("Failed to add stock by barcode: " + e.getMessage(), e);
+        }
+    }
+
+    // Stock methods
+    public List<StockResponse> findAllStocks() {
+        try {
+            return webClient.get()
+                    .uri(warehousesManagementApi.getStockController_getAllStocks())
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error calling warehouses management service: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<StockResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching stocks from warehouses management service", e);
+            throw new RuntimeException("Failed to fetch stocks: " + e.getMessage(), e);
+        }
+    }
+
+    public StockResponse findStockById(Long id) {
+        try {
+            String uri = warehousesManagementApi.getStockController_getStockById()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching stock by ID {}: Status code {}", 
+                                        id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(StockResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching stock by ID: {}", id, e);
+            throw new RuntimeException("Failed to fetch stock: " + e.getMessage(), e);
+        }
+    }
+
+    public List<StockResponse> findStocksByWarehouse(Long warehouseId) {
+        try {
+            String uri = warehousesManagementApi.getStockController_getStocksByWarehouse()
+                    .replace("{warehouseId}", String.valueOf(warehouseId));
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching stocks by warehouse {}: Status code {}", 
+                                        warehouseId, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<StockResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching stocks by warehouse: {}", warehouseId, e);
+            throw new RuntimeException("Failed to fetch stocks: " + e.getMessage(), e);
+        }
+    }
+
+    public List<StockResponse> findStocksByProduct(Long productId) {
+        try {
+            String uri = warehousesManagementApi.getStockController_getStocksByProduct()
+                    .replace("{productId}", String.valueOf(productId));
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching stocks by product {}: Status code {}", 
+                                        productId, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<StockResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching stocks by product: {}", productId, e);
+            throw new RuntimeException("Failed to fetch stocks: " + e.getMessage(), e);
+        }
+    }
+
+    public List<StockResponse> findLowStockItems(Long warehouseId) {
+        try {
+            String uri = warehousesManagementApi.getStockController_getLowStockItems();
+            if (warehouseId != null) {
+                uri += "?warehouseId=" + warehouseId;
+            }
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching low stock items: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<StockResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching low stock items", e);
+            throw new RuntimeException("Failed to fetch low stock items: " + e.getMessage(), e);
         }
     }
 }
