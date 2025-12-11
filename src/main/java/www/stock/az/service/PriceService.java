@@ -12,6 +12,8 @@ public interface PriceService {
     
     PriceResponse findById(Long id);
     
+    List<PriceResponse> findAll();
+    
     List<PriceResponse> findByProductId(Long productId);
     
     List<PriceResponse> findByWarehouseId(Long warehouseId);

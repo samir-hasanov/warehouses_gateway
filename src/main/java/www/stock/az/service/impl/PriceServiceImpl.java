@@ -27,6 +27,11 @@ public class PriceServiceImpl implements PriceService {
     }
 
     @Override
+    public List<PriceResponse> findAll() {
+        return webClientWarehousesOrder.findAllPrices();
+    }
+
+    @Override
     public List<PriceResponse> findByProductId(Long productId) {
         return webClientWarehousesOrder.getPricesByProduct(productId);
     }

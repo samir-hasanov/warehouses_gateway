@@ -32,25 +32,37 @@ public class PriceController {
             @ApiResponse(responseCode = "201", description = "Price created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<PriceResponse> createPrice(@Valid @RequestBody PriceCreateRequest request) {
+    public ResponseEntity<?> createPrice(@Valid @RequestBody PriceCreateRequest request) {
         try {
             PriceResponse response = priceService.create(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            throw e;
         }
     }
     
+    @GetMapping
+    @Operation(summary = "Get all prices", description = "Returns a list of all prices")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of prices")
+    public ResponseEntity<?> getAllPrices() {
+        try {
+            List<PriceResponse> prices = priceService.findAll();
+            return ResponseEntity.ok(prices);
+        } catch (RuntimeException e) {
+            throw e;
+        }
+    }
+
     @GetMapping("/product/{productId}")
     @Operation(summary = "Get prices by product ID", description = "Returns all prices for a specific product")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved prices")
-    public ResponseEntity<List<PriceResponse>> getPricesByProduct(
+    public ResponseEntity<?> getPricesByProduct(
             @Parameter(description = "Product ID", required = true) @PathVariable Long productId) {
         try {
             List<PriceResponse> prices = priceService.findByProductId(productId);
             return ResponseEntity.ok(prices);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (RuntimeException e) {
+            throw e;
         }
     }
     

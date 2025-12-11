@@ -33,12 +33,12 @@ public class DiscountController {
             @ApiResponse(responseCode = "201", description = "Discount created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<DiscountResponse> createDiscount(@Valid @RequestBody DiscountCreateRequest request) {
+    public ResponseEntity<?> createDiscount(@Valid @RequestBody DiscountCreateRequest request) {
         try {
             DiscountResponse response = discountService.create(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            throw e;
         }
     }
     
@@ -77,12 +77,12 @@ public class DiscountController {
     @GetMapping
     @Operation(summary = "Get all discounts", description = "Returns a list of all discounts")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list of discounts")
-    public ResponseEntity<List<DiscountResponse>> getAllDiscounts() {
+    public ResponseEntity<?> getAllDiscounts() {
         try {
             List<DiscountResponse> discounts = discountService.findAll();
             return ResponseEntity.ok(discounts);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (RuntimeException e) {
+            throw e;
         }
     }
     

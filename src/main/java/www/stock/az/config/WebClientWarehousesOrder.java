@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import www.stock.az.dto.request.warehousesorder.DiscountCreateRequest;
 import www.stock.az.dto.request.warehousesorder.DiscountUpdateRequest;
 import www.stock.az.dto.request.warehousesorder.OrderCreateRequest;
@@ -169,10 +170,10 @@ public class WebClientWarehousesOrder {
                     .uri(warehousesOrderApi.getDiscountController_getAllDiscounts())
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                            response -> {
-                                log.error("Error calling order service for discounts: Status code {}", response.statusCode());
-                                return response.createException();
-                            })
+                            response -> response.bodyToMono(String.class).flatMap(body -> {
+                                log.error("Error fetching all discounts: Status code {}, Response body: {}", response.statusCode(), body);
+                                return Mono.error(new RuntimeException("Failed to fetch discounts: " + body));
+                            }))
                     .bodyToMono(new ParameterizedTypeReference<List<DiscountResponse>>() {
                     })
                     .timeout(Duration.ofSeconds(10))
@@ -638,6 +639,26 @@ public class WebClientWarehousesOrder {
         }
     }
 
+    public List<PriceResponse> findAllPrices() {
+        try {
+            return webClient.get()
+                    .uri(warehousesOrderApi.getPriceController_getAllPrices())
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> response.bodyToMono(String.class).flatMap(body -> {
+                                log.error("Error fetching all prices: Status code {}, Response body: {}", response.statusCode(), body);
+                                return Mono.error(new RuntimeException("Failed to fetch prices: " + body));
+                            }))
+                    .bodyToMono(new ParameterizedTypeReference<List<PriceResponse>>() {
+                    })
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching all prices", e);
+            throw new RuntimeException("Failed to fetch prices: " + e.getMessage(), e);
+        }
+    }
+
     public List<PriceResponse> getPricesByProduct(Long productId) {
         try {
             String uri = warehousesOrderApi.getPriceController_getPricesByProduct()
@@ -646,10 +667,10 @@ public class WebClientWarehousesOrder {
                     .uri(uri)
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                            response -> {
-                                log.error("Error fetching prices for product {}: Status code {}", productId, response.statusCode());
-                                return response.createException();
-                            })
+                            response -> response.bodyToMono(String.class).flatMap(body -> {
+                                log.error("Error fetching prices for product {}: Status code {}, Response body: {}", productId, response.statusCode(), body);
+                                return Mono.error(new RuntimeException("Failed to fetch prices: " + body));
+                            }))
                     .bodyToMono(new ParameterizedTypeReference<List<PriceResponse>>() {
                     })
                     .timeout(Duration.ofSeconds(10))
