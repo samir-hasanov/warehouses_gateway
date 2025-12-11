@@ -76,12 +76,13 @@ public class WarehouseController {
             @ApiResponse(responseCode = "201", description = "Warehouse created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<WarehouseResponse> createWarehouse(@Valid @RequestBody WarehouseCreateRequest request) {
+    public ResponseEntity<?> createWarehouse(@Valid @RequestBody WarehouseCreateRequest request) {
         try {
             WarehouseResponse response = warehouseService.create(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            // Exception will be handled by GlobalExceptionHandler
+            throw e;
         }
     }
 
@@ -92,14 +93,15 @@ public class WarehouseController {
             @ApiResponse(responseCode = "404", description = "Warehouse not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<WarehouseResponse> updateWarehouse(
+    public ResponseEntity<?> updateWarehouse(
             @Parameter(description = "Warehouse ID", required = true) @PathVariable Long id,
             @Valid @RequestBody WarehouseUpdateRequest request) {
         try {
             WarehouseResponse response = warehouseService.update(id, request);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (RuntimeException e) {
+            // Exception will be handled by GlobalExceptionHandler
+            throw e;
         }
     }
 
@@ -109,13 +111,14 @@ public class WarehouseController {
             @ApiResponse(responseCode = "204", description = "Warehouse deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Warehouse not found")
     })
-    public ResponseEntity<Void> deleteWarehouse(
+    public ResponseEntity<?> deleteWarehouse(
             @Parameter(description = "Warehouse ID", required = true) @PathVariable Long id) {
         try {
             warehouseService.delete(id);
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (RuntimeException e) {
+            // Exception will be handled by GlobalExceptionHandler
+            throw e;
         }
     }
 }

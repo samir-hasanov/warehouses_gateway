@@ -431,9 +431,21 @@ public class WebClientWarehousesManagement {
                     .bodyToMono(WarehouseResponse.class)
                     .timeout(Duration.ofSeconds(10))
                     .block();
+        } catch (org.springframework.web.reactive.function.client.WebClientResponseException e) {
+            log.error("Error creating warehouse: Status {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
+            String errorMessage = "Anbar yaradılarkən xəta baş verdi";
+            if (e.getResponseBodyAsString() != null && !e.getResponseBodyAsString().isEmpty()) {
+                try {
+                    // Try to extract message from response
+                    errorMessage = e.getResponseBodyAsString();
+                } catch (Exception ex) {
+                    log.warn("Could not parse error response", ex);
+                }
+            }
+            throw new RuntimeException(errorMessage, e);
         } catch (Exception e) {
             log.error("Error creating warehouse", e);
-            throw new RuntimeException("Failed to create warehouse: " + e.getMessage(), e);
+            throw new RuntimeException("Anbar yaradılarkən xəta baş verdi: " + e.getMessage(), e);
         }
     }
 
@@ -455,9 +467,20 @@ public class WebClientWarehousesManagement {
                     .bodyToMono(WarehouseResponse.class)
                     .timeout(Duration.ofSeconds(10))
                     .block();
+        } catch (org.springframework.web.reactive.function.client.WebClientResponseException e) {
+            log.error("Error updating warehouse {}: Status {}, Body: {}", id, e.getStatusCode(), e.getResponseBodyAsString(), e);
+            String errorMessage = "Anbar yenilənərkən xəta baş verdi";
+            if (e.getResponseBodyAsString() != null && !e.getResponseBodyAsString().isEmpty()) {
+                try {
+                    errorMessage = e.getResponseBodyAsString();
+                } catch (Exception ex) {
+                    log.warn("Could not parse error response", ex);
+                }
+            }
+            throw new RuntimeException(errorMessage, e);
         } catch (Exception e) {
             log.error("Error updating warehouse: {}", id, e);
-            throw new RuntimeException("Failed to update warehouse: " + e.getMessage(), e);
+            throw new RuntimeException("Anbar yenilənərkən xəta baş verdi: " + e.getMessage(), e);
         }
     }
 

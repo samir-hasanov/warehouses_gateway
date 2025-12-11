@@ -1,8 +1,10 @@
 package www.stock.az.exception;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class MyException extends RuntimeException {
 
     private Integer code;
