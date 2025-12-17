@@ -11,6 +11,7 @@ import www.stock.az.dto.request.warehousesmanagement.CategoryUpdateRequest;
 import www.stock.az.dto.request.warehousesmanagement.ProductCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.ProductUpdateRequest;
 import www.stock.az.dto.request.warehousesmanagement.StockInRequest;
+import www.stock.az.dto.request.warehousesmanagement.StockMovementCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.WarehouseCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.WarehouseUpdateRequest;
 import www.stock.az.dto.response.warehousesmanagement.BrandResponse;
@@ -23,7 +24,9 @@ import www.stock.az.properties.WarehousesManagementApi;
 import www.stock.az.properties.WarehousesManagementClient;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -685,6 +688,52 @@ public class WebClientWarehousesManagement {
     }
 
     // Stock Movement methods
+    public List<StockMovementResponse> getAllStockMovements(String type) {
+        try {
+            String uri = warehousesManagementApi.getStockMovementController_getAllStockMovements();
+            if (type != null && !type.isEmpty()) {
+                uri += "?type=" + type;
+            }
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error getting stock movements: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<StockMovementResponse>>() {})
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error getting stock movements", e);
+            throw new RuntimeException("Failed to get stock movements: " + e.getMessage(), e);
+        }
+    }
+    
+    public StockMovementResponse createStockMovement(StockMovementCreateRequest request) {
+        try {
+            return webClient.post()
+                    .uri(warehousesManagementApi.getStockMovementController_createStockMovement())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error creating stock movement: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(StockMovementResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error creating stock movement", e);
+            throw new RuntimeException("Failed to create stock movement: " + e.getMessage(), e);
+        }
+    }
+    
     public StockMovementResponse addStockByBarcode(StockInRequest request) {
         try {
             return webClient.post()
@@ -704,6 +753,58 @@ public class WebClientWarehousesManagement {
         } catch (Exception e) {
             log.error("Error adding stock by barcode", e);
             throw new RuntimeException("Failed to add stock by barcode: " + e.getMessage(), e);
+        }
+    }
+    
+    public StockMovementResponse approveStockMovement(Long id, String approvedBy) {
+        try {
+            String uri = warehousesManagementApi.getStockMovementController_approveStockMovement()
+                    .replace("{id}", String.valueOf(id));
+            Map<String, String> body = new HashMap<>();
+            body.put("approvedBy", approvedBy);
+            return webClient.post()
+                    .uri(uri)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(body)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error approving stock movement: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(StockMovementResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error approving stock movement", e);
+            throw new RuntimeException("Failed to approve stock movement: " + e.getMessage(), e);
+        }
+    }
+    
+    public StockMovementResponse cancelStockMovement(Long id, String reason) {
+        try {
+            String uri = warehousesManagementApi.getStockMovementController_cancelStockMovement()
+                    .replace("{id}", String.valueOf(id));
+            Map<String, String> body = new HashMap<>();
+            body.put("reason", reason);
+            return webClient.post()
+                    .uri(uri)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(body)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error cancelling stock movement: Status code {}", 
+                                        response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(StockMovementResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error cancelling stock movement", e);
+            throw new RuntimeException("Failed to cancel stock movement: " + e.getMessage(), e);
         }
     }
 

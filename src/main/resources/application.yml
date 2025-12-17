@@ -49,7 +49,11 @@ app:
       ProductController_updateProduct: /api/1.1/products/{id}
       ProductController_deleteProduct: /api/1.1/products/{id}
       # Stock Movement endpoints
+      StockMovementController_getAllStockMovements: /api/1.1/stock-movements
+      StockMovementController_createStockMovement: /api/1.1/stock-movements
       StockMovementController_addStockByBarcode: /api/1.1/stock-movements/stock-in-by-barcode
+      StockMovementController_approveStockMovement: /api/1.1/stock-movements/{id}/approve
+      StockMovementController_cancelStockMovement: /api/1.1/stock-movements/{id}/cancel
       # Stock endpoints
       StockController_getAllStocks: /api/1.1/stocks
       StockController_getStockById: /api/1.1/stocks/{id}

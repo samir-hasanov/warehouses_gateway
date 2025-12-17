@@ -47,7 +47,11 @@ public class WarehousesManagementApi {
     private String ProductController_deleteProduct;
     
     // Stock Movement endpoints
+    private String StockMovementController_getAllStockMovements;
+    private String StockMovementController_createStockMovement;
     private String StockMovementController_addStockByBarcode;
+    private String StockMovementController_approveStockMovement;
+    private String StockMovementController_cancelStockMovement;
     
     // Stock endpoints
     private String StockController_getAllStocks;
