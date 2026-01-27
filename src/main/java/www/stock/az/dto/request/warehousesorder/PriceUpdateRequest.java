@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Data
 public class PriceUpdateRequest {
     
+    private Long warehouseId;
+    
     private String priceType;
     
     @DecimalMin(value = "0.01", message = "Unit price must be greater than 0")

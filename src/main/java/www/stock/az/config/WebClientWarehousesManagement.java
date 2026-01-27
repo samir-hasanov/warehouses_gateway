@@ -14,6 +14,7 @@ import www.stock.az.dto.request.warehousesmanagement.StockInRequest;
 import www.stock.az.dto.request.warehousesmanagement.StockMovementCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.WarehouseCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.WarehouseUpdateRequest;
+import www.stock.az.dto.response.PageResponse;
 import www.stock.az.dto.response.warehousesmanagement.BrandResponse;
 import www.stock.az.dto.response.warehousesmanagement.CategoryResponse;
 import www.stock.az.dto.response.warehousesmanagement.ProductResponse;
@@ -510,24 +511,28 @@ public class WebClientWarehousesManagement {
     }
 
     // Product methods
-    public List<ProductResponse> findAllActiveProducts() {
+    public PageResponse<ProductResponse> findAllActiveProducts(int page, int size) {
+        String uri = warehousesManagementApi.getProductController_getAllActiveProducts();
         try {
             return webClient.get()
-                    .uri(warehousesManagementApi.getProductController_getAllActiveProducts())
+                    .uri(uriBuilder -> uriBuilder
+                            .path(uri)
+                            .queryParam("page", page)
+                            .queryParam("size", size)
+                            .build()
+                    )
                     .retrieve()
-                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                            response -> {
-                                log.error("Error calling warehouses management service: Status code {}", 
-                                        response.statusCode());
-                                return response.createException();
-                            })
-                    .bodyToMono(new ParameterizedTypeReference<List<ProductResponse>>() {
-                    })
-                    .timeout(Duration.ofSeconds(10))
+                    .onStatus(
+                            status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> response.createException()
+                    )
+                    .bodyToMono(new ParameterizedTypeReference<
+                            PageResponse<ProductResponse>>() {})
                     .block();
+
         } catch (Exception e) {
-            log.error("Error fetching active products from warehouses management service", e);
-            throw new RuntimeException("Failed to fetch products: " + e.getMessage(), e);
+            log.error("Gateway product pagination error", e);
+            throw new RuntimeException("Product service çağırıla bilmədi", e);
         }
     }
 

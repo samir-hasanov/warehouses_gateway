@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import www.stock.az.config.WebClientWarehousesManagement;
 import www.stock.az.dto.request.warehousesmanagement.ProductCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.ProductUpdateRequest;
+import www.stock.az.dto.response.PageResponse;
 import www.stock.az.dto.response.warehousesmanagement.ProductResponse;
 import www.stock.az.service.ProductService;
 
@@ -16,10 +17,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final WebClientWarehousesManagement webClientWarehousesManagement;
 
-    @Override
-    public List<ProductResponse> findAllActive() {
-        return webClientWarehousesManagement.findAllActiveProducts();
-    }
+
 
     @Override
     public ProductResponse findById(Long id) {
@@ -54,6 +52,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long id) {
         webClientWarehousesManagement.deleteProduct(id);
+    }
+
+    @Override
+    public PageResponse<ProductResponse> getAllActiveProducts(int page, int size) {
+        return webClientWarehousesManagement.findAllActiveProducts(page,size);
     }
 }
 

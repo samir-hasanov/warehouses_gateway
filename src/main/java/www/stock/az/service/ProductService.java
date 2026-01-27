@@ -2,12 +2,12 @@ package www.stock.az.service;
 
 import www.stock.az.dto.request.warehousesmanagement.ProductCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.ProductUpdateRequest;
+import www.stock.az.dto.response.PageResponse;
 import www.stock.az.dto.response.warehousesmanagement.ProductResponse;
 
 import java.util.List;
 
 public interface ProductService {
-    List<ProductResponse> findAllActive();
 
     ProductResponse findById(Long id);
 
@@ -22,5 +22,8 @@ public interface ProductService {
     ProductResponse update(Long id, ProductUpdateRequest request);
 
     void delete(Long id);
+
+
+    PageResponse<ProductResponse> getAllActiveProducts(int page, int size);
 }
 

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import www.stock.az.dto.request.warehousesmanagement.ProductCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.ProductUpdateRequest;
+import www.stock.az.dto.response.PageResponse;
 import www.stock.az.dto.response.warehousesmanagement.ProductResponse;
 import www.stock.az.service.ProductService;
 
@@ -31,10 +32,13 @@ public class ProductController {
     @GetMapping
     @Operation(summary = "Get all active products", description = "Returns a list of all active products")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list of products")
-    public ResponseEntity<List<ProductResponse>> getAllActiveProducts() {
+    public ResponseEntity<PageResponse<ProductResponse>> getAllActiveProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size) {
         try {
-            List<ProductResponse> products = productService.findAllActive();
-            return ResponseEntity.ok(products);
+            PageResponse<ProductResponse> response =
+                    productService.getAllActiveProducts(page, size);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
