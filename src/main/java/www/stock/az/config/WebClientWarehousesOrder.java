@@ -9,18 +9,25 @@ import www.stock.az.dto.request.warehousesorder.DiscountCreateRequest;
 import www.stock.az.dto.request.warehousesorder.DiscountUpdateRequest;
 import www.stock.az.dto.request.warehousesorder.OrderCreateRequest;
 import www.stock.az.dto.request.warehousesorder.OrderUpdateRequest;
+import www.stock.az.dto.request.warehousesorder.PaymentCreateRequest;
 import www.stock.az.dto.request.warehousesorder.PriceCreateRequest;
 import www.stock.az.dto.request.warehousesorder.PriceUpdateRequest;
+import www.stock.az.dto.request.warehousesorder.ProductReturnCreateRequest;
 import www.stock.az.dto.response.warehousesorder.DiscountResponse;
 import www.stock.az.dto.response.warehousesorder.OrderResponse;
+import www.stock.az.dto.response.warehousesorder.PaymentResponse;
 import www.stock.az.dto.response.warehousesorder.PriceResponse;
+import www.stock.az.dto.response.warehousesorder.ProductReturnResponse;
 import www.stock.az.enums.OrderStatus;
 import www.stock.az.enums.PaymentStatus;
+import www.stock.az.enums.PaymentType;
+import www.stock.az.enums.ReturnStatus;
 import www.stock.az.properties.WarehousesOrderApi;
 import www.stock.az.properties.WarehousesOrderClient;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -36,11 +43,28 @@ public class WebClientWarehousesOrder {
 
     // Order methods
     public List<OrderResponse> findAllOrders() {
+        return searchOrders(null, null, null);
+    }
+
+    public List<OrderResponse> searchOrders(OrderStatus status, LocalDateTime fromDate, LocalDateTime toDate) {
         try {
+            StringBuilder uri = new StringBuilder(warehousesOrderApi.getOrderController_getAllOrders());
+            boolean first = true;
+            if (status != null) {
+                uri.append(first ? "?" : "&").append("status=").append(status.name());
+                first = false;
+            }
+            if (fromDate != null) {
+                uri.append(first ? "?" : "&").append("fromDate=").append(fromDate.toString());
+                first = false;
+            }
+            if (toDate != null) {
+                uri.append(first ? "?" : "&").append("toDate=").append(toDate.toString());
+            }
             return webClient.get()
-                    .uri(warehousesOrderApi.getOrderController_getAllOrders())
+                    .uri(uri.toString())
                     .retrieve()
-                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                    .onStatus(httpStatus -> httpStatus.is4xxClientError() || httpStatus.is5xxServerError(),
                             response -> {
                                 log.error("Error calling order service: Status code {}", response.statusCode());
                                 return response.createException();
@@ -699,6 +723,90 @@ public class WebClientWarehousesOrder {
         } catch (Exception e) {
             log.error("Error creating price", e);
             throw new RuntimeException("Failed to create price: " + e.getMessage(), e);
+        }
+    }
+
+    // Payment methods (ödənişlər: kart, nağd, əvəzləşmə)
+    public PaymentResponse createPayment(PaymentCreateRequest request) {
+        try {
+            return webClient.post()
+                    .uri(warehousesOrderApi.getPaymentController_create())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(PaymentResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error creating payment", e);
+            throw new RuntimeException("Failed to create payment: " + e.getMessage(), e);
+        }
+    }
+
+    public PaymentResponse findPaymentById(Long id) {
+        try {
+            String uri = warehousesOrderApi.getPaymentController_getById().replace("{id}", String.valueOf(id));
+            return webClient.get().uri(uri).retrieve().bodyToMono(PaymentResponse.class).timeout(Duration.ofSeconds(10)).block();
+        } catch (Exception e) {
+            log.error("Error fetching payment {}", id, e);
+            throw new RuntimeException("Failed to fetch payment: " + e.getMessage(), e);
+        }
+    }
+
+    public List<PaymentResponse> searchPayments(PaymentType paymentType, LocalDateTime fromDate, LocalDateTime toDate) {
+        try {
+            StringBuilder uri = new StringBuilder(warehousesOrderApi.getPaymentController_search());
+            boolean first = true;
+            if (paymentType != null) { uri.append(first ? "?" : "&").append("paymentType=").append(paymentType.name()); first = false; }
+            if (fromDate != null) { uri.append(first ? "?" : "&").append("fromDate=").append(fromDate.toString()); first = false; }
+            if (toDate != null) { uri.append(first ? "?" : "&").append("toDate=").append(toDate.toString()); }
+            return webClient.get().uri(uri.toString()).retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<List<PaymentResponse>>() {}).timeout(Duration.ofSeconds(10)).block();
+        } catch (Exception e) {
+            log.error("Error searching payments", e);
+            throw new RuntimeException("Failed to search payments: " + e.getMessage(), e);
+        }
+    }
+
+    // Return methods (geri qaytarma)
+    public ProductReturnResponse createReturn(ProductReturnCreateRequest request) {
+        try {
+            return webClient.post()
+                    .uri(warehousesOrderApi.getProductReturnController_create())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(ProductReturnResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error creating return", e);
+            throw new RuntimeException("Failed to create return: " + e.getMessage(), e);
+        }
+    }
+
+    public ProductReturnResponse findReturnById(Long id) {
+        try {
+            String uri = warehousesOrderApi.getProductReturnController_getById().replace("{id}", String.valueOf(id));
+            return webClient.get().uri(uri).retrieve().bodyToMono(ProductReturnResponse.class).timeout(Duration.ofSeconds(10)).block();
+        } catch (Exception e) {
+            log.error("Error fetching return {}", id, e);
+            throw new RuntimeException("Failed to fetch return: " + e.getMessage(), e);
+        }
+    }
+
+    public List<ProductReturnResponse> searchReturns(ReturnStatus status, LocalDateTime fromDate, LocalDateTime toDate) {
+        try {
+            StringBuilder uri = new StringBuilder(warehousesOrderApi.getProductReturnController_search());
+            boolean first = true;
+            if (status != null) { uri.append(first ? "?" : "&").append("status=").append(status.name()); first = false; }
+            if (fromDate != null) { uri.append(first ? "?" : "&").append("fromDate=").append(fromDate.toString()); first = false; }
+            if (toDate != null) { uri.append(first ? "?" : "&").append("toDate=").append(toDate.toString()); }
+            return webClient.get().uri(uri.toString()).retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<List<ProductReturnResponse>>() {}).timeout(Duration.ofSeconds(10)).block();
+        } catch (Exception e) {
+            log.error("Error searching returns", e);
+            throw new RuntimeException("Failed to search returns: " + e.getMessage(), e);
         }
     }
 }

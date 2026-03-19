@@ -26,6 +26,17 @@ public class WarehousesOrderApi {
     private String OrderController_cancelOrder;
     private String OrderController_completeOrder;
     
+    // Payment endpoints
+    private String PaymentController_create;
+    private String PaymentController_getById;
+    private String PaymentController_search;
+    private String PaymentController_getByOrderId;
+    private String PaymentController_getByInvoiceId;
+    // Return endpoints
+    private String ProductReturnController_create;
+    private String ProductReturnController_getById;
+    private String ProductReturnController_getByNumber;
+    private String ProductReturnController_search;
     // Discount endpoints
     private String DiscountController_getAllDiscounts;
     private String DiscountController_getDiscountById;

@@ -10,6 +10,7 @@ import www.stock.az.enums.OrderStatus;
 import www.stock.az.enums.PaymentStatus;
 import www.stock.az.service.OrderService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -36,6 +37,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderResponse> findAll() {
         return webClientWarehousesOrder.findAllOrders();
+    }
+
+    @Override
+    public List<OrderResponse> search(OrderStatus status, LocalDateTime fromDate, LocalDateTime toDate) {
+        return webClientWarehousesOrder.searchOrders(status, fromDate, toDate);
     }
 
     @Override

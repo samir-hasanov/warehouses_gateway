@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import www.stock.az.enums.OrderStatus;
 import www.stock.az.enums.PaymentStatus;
 import www.stock.az.service.OrderService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -76,11 +78,20 @@ public class OrderController {
     }
     
     @GetMapping
-    @Operation(summary = "Get all orders", description = "Returns a list of all orders")
+    @Operation(summary = "Get all orders", description = "Returns list of orders. Optional: status, fromDate, toDate (ISO date-time)")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list of orders")
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+    public ResponseEntity<List<OrderResponse>> getAllOrders(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDate) {
         try {
-            List<OrderResponse> orders = orderService.findAll();
+            OrderStatus st = null;
+            if (status != null && !status.isBlank()) {
+                try {
+                    st = OrderStatus.valueOf(status.toUpperCase());
+                } catch (IllegalArgumentException ignored) {}
+            }
+            List<OrderResponse> orders = orderService.search(st, fromDate, toDate);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

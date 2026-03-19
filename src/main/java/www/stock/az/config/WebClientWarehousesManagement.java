@@ -8,6 +8,7 @@ import www.stock.az.dto.request.warehousesmanagement.BrandCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.BrandUpdateRequest;
 import www.stock.az.dto.request.warehousesmanagement.CategoryCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.CategoryUpdateRequest;
+import www.stock.az.dto.request.warehousesmanagement.InvoiceCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.ProductCreateRequest;
 import www.stock.az.dto.request.warehousesmanagement.ProductUpdateRequest;
 import www.stock.az.dto.request.warehousesmanagement.StockInRequest;
@@ -17,6 +18,7 @@ import www.stock.az.dto.request.warehousesmanagement.WarehouseUpdateRequest;
 import www.stock.az.dto.response.PageResponse;
 import www.stock.az.dto.response.warehousesmanagement.BrandResponse;
 import www.stock.az.dto.response.warehousesmanagement.CategoryResponse;
+import www.stock.az.dto.response.warehousesmanagement.InvoiceResponse;
 import www.stock.az.dto.response.warehousesmanagement.ProductResponse;
 import www.stock.az.dto.response.warehousesmanagement.StockMovementResponse;
 import www.stock.az.dto.response.warehousesmanagement.StockResponse;
@@ -24,6 +26,7 @@ import www.stock.az.dto.response.warehousesmanagement.WarehouseResponse;
 import www.stock.az.properties.WarehousesManagementApi;
 import www.stock.az.properties.WarehousesManagementClient;
 
+import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +40,10 @@ public class WebClientWarehousesManagement {
 
 
     public WebClientWarehousesManagement(WebClient.Builder webClient, WarehousesManagementClient warehousesManagementClient, WarehousesManagementApi warehousesManagementApi) {
-        this.webClient = webClient.baseUrl(warehousesManagementClient.getBaseUrl()).build();
+        this.webClient = webClient
+                .baseUrl(warehousesManagementClient.getBaseUrl())
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024)) // 2 MB
+                .build();
         this.warehousesManagementApi = warehousesManagementApi;
     }
 
@@ -925,6 +931,102 @@ public class WebClientWarehousesManagement {
         } catch (Exception e) {
             log.error("Error fetching low stock items", e);
             throw new RuntimeException("Failed to fetch low stock items: " + e.getMessage(), e);
+        }
+    }
+
+    // Invoice methods
+    public InvoiceResponse createInvoice(InvoiceCreateRequest request) {
+        try {
+            return webClient.post()
+                    .uri(warehousesManagementApi.getInvoiceController_create())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error creating invoice: Status code {}", response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(InvoiceResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error creating invoice", e);
+            throw new RuntimeException("Failed to create invoice: " + e.getMessage(), e);
+        }
+    }
+
+    public InvoiceResponse findInvoiceById(Long id) {
+        try {
+            String uri = warehousesManagementApi.getInvoiceController_getById()
+                    .replace("{id}", String.valueOf(id));
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching invoice by ID {}: Status code {}", id, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(InvoiceResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching invoice by ID: {}", id, e);
+            throw new RuntimeException("Failed to fetch invoice: " + e.getMessage(), e);
+        }
+    }
+
+    public InvoiceResponse findInvoiceByNumber(String invoiceNumber) {
+        try {
+            String uri = warehousesManagementApi.getInvoiceController_getByNumber()
+                    .replace("{invoiceNumber}", invoiceNumber != null ? invoiceNumber : "");
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error fetching invoice by number {}: Status code {}", invoiceNumber, response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(InvoiceResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching invoice by number: {}", invoiceNumber, e);
+            throw new RuntimeException("Failed to fetch invoice: " + e.getMessage(), e);
+        }
+    }
+
+    public List<InvoiceResponse> searchInvoices(String direction, LocalDateTime fromDate, LocalDateTime toDate) {
+        try {
+            StringBuilder uri = new StringBuilder(warehousesManagementApi.getInvoiceController_search());
+            boolean first = true;
+            if (direction != null && !direction.isEmpty()) {
+                uri.append(first ? "?" : "&").append("direction=").append(direction);
+                first = false;
+            }
+            if (fromDate != null) {
+                uri.append(first ? "?" : "&").append("fromDate=").append(fromDate.toString());
+                first = false;
+            }
+            if (toDate != null) {
+                uri.append(first ? "?" : "&").append("toDate=").append(toDate.toString());
+            }
+            return webClient.get()
+                    .uri(uri.toString())
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                log.error("Error searching invoices: Status code {}", response.statusCode());
+                                return response.createException();
+                            })
+                    .bodyToMono(new ParameterizedTypeReference<List<InvoiceResponse>>() {})
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+        } catch (Exception e) {
+            log.error("Error searching invoices", e);
+            throw new RuntimeException("Failed to search invoices: " + e.getMessage(), e);
         }
     }
 }

@@ -59,4 +59,10 @@ public class WarehousesManagementApi {
     private String StockController_getStocksByWarehouse;
     private String StockController_getStocksByProduct;
     private String StockController_getLowStockItems;
+
+    // Invoice endpoints
+    private String InvoiceController_create;
+    private String InvoiceController_getById;
+    private String InvoiceController_getByNumber;
+    private String InvoiceController_search;
 }

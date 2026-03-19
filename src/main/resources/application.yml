@@ -1,6 +1,9 @@
 server:
   port: 8085
 
+jwt:
+  secret: 7f3c1e2d4b6a8c0e1f2d3c4b5a6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4
+
 springdoc:
   api-docs:
     path: /api-docs
@@ -60,6 +63,11 @@ app:
       StockController_getStocksByWarehouse: /api/1.1/stocks/warehouse/{warehouseId}
       StockController_getStocksByProduct: /api/1.1/stocks/product/{productId}
       StockController_getLowStockItems: /api/1.1/stocks/low-stock
+      # Invoice endpoints
+      InvoiceController_create: /api/1.1/invoices
+      InvoiceController_getById: /api/1.1/invoices/{id}
+      InvoiceController_getByNumber: /api/1.1/invoices/number/{invoiceNumber}
+      InvoiceController_search: /api/1.1/invoices
 
   warehouses-order-service:
     client:
@@ -89,6 +97,17 @@ app:
       DiscountController_updateDiscount: /api/1.1/discounts/{id}
       DiscountController_deleteDiscount: /api/1.1/discounts/{id}
       DiscountController_validateDiscount: /api/1.1/discounts/validate
+      # Payment endpoints (kart, nağd, əvəzləşmə)
+      PaymentController_create: /api/1.1/payments
+      PaymentController_getById: /api/1.1/payments/{id}
+      PaymentController_search: /api/1.1/payments
+      PaymentController_getByOrderId: /api/1.1/payments/order/{orderId}
+      PaymentController_getByInvoiceId: /api/1.1/payments/invoice/{invoiceId}
+      # Return (geri qaytarma) endpoints
+      ProductReturnController_create: /api/1.1/returns
+      ProductReturnController_getById: /api/1.1/returns/{id}
+      ProductReturnController_getByNumber: /api/1.1/returns/number/{returnNumber}
+      ProductReturnController_search: /api/1.1/returns
       # Price endpoints
       PriceController_getAllPrices: /api/1.1/prices
       PriceController_getPriceById: /api/1.1/prices/{id}
@@ -99,6 +118,23 @@ app:
       PriceController_createPrice: /api/1.1/prices
       PriceController_updatePrice: /api/1.1/prices/{id}
       PriceController_deletePrice: /api/1.1/prices/{id}
+
+  warehouses-auth:
+    client:
+      base-url: http://localhost:8084
+    api:
+      #Auth endpoints
+      AuthController_register: /api/1.1/user/register
+      AuthController_login: /api/1.1/auth/login
+      AuthController_refresh: /api/1.1/auth/refresh
+      AuthController_logout: /api/1.1/auth/logout
+      AuthController_listUsers: /api/1.1/user
+      AuthController_createUser: /api/1.1/user
+      AuthController_updateUser: /api/1.1/user/{id}
+      AuthController_deleteUser: /api/1.1/user/{id}
+      AuthController_setUserActive: /api/1.1/user/{id}/active
+      AuthController_setUserRoles: /api/1.1/user/{id}/roles
+      AuthController_listRoles: /api/1.1/roles
 
 
 

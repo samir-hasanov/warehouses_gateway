@@ -6,18 +6,21 @@ import www.stock.az.dto.response.warehousesorder.OrderResponse;
 import www.stock.az.enums.OrderStatus;
 import www.stock.az.enums.PaymentStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrderService {
-    
+
     OrderResponse create(OrderCreateRequest request);
-    
+
     OrderResponse findById(Long id);
-    
+
     OrderResponse findByOrderNumber(String orderNumber);
-    
+
     List<OrderResponse> findAll();
-    
+
+    List<OrderResponse> search(OrderStatus status, LocalDateTime fromDate, LocalDateTime toDate);
+
     List<OrderResponse> findByStatus(OrderStatus status);
     
     List<OrderResponse> findByPaymentStatus(PaymentStatus paymentStatus);
